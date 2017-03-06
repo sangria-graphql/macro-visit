@@ -12,17 +12,19 @@ libraryDependencies += "org.sangria-graphql" %% "macro-visit" % "0.1.0"
 
 ## Introduction
 
-Library provides very simple way to create a type-safe visitor code for arbitrary sealed case class hierarchies. Generated visitor provides following features:
+Writing visitor code can be quite tedious process, especially if some nodes need to be transformed (in immutable way) along the way. 
+This becomes even harder if performance is a concern and data structures are deeply recursive, so non-tail recursive approach is not an option.  
+This library provides very simple way to create type-safe visitor code for arbitrary sealed case class hierarchies. Generated visitor provides following features:
 
-* **Non-recursive**, which means all state is managed in the heap and you will not run into stack 
+* **Non-recursive traversal**, which means all state is managed in the heap and you will not run into stack 
   overflow errors with deep recursive data structures. 
 * **Optimised for performance and memory footprint**. Generated code for class hierarchy traversal is compiled into tight `while` loop.
-* **Allows to transform** traversed object in immutable manner. It generates code that uses case class's `copy` method to get updated 
+* **Allows to transform** traversed object in immutable way. It generates code that uses case class's `copy` method to get updated 
   instance of object in most efficient way (if object has several changes, it would be copied only once)
 * **Allows to break traversal at any given node and skip nodes**
 * **Supports `List`, `Vector`, `Seq` and `Option` traversal**
   
-Generated visitors can be very useful for traversing and transforming AST (Abstract Syntax Tree).       
+Generated visitors can be very useful for traversing and transforming AST (Abstract Syntax Tree).        
 
 ## Example
 
