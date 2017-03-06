@@ -12,9 +12,7 @@ libraryDependencies += "org.sangria-graphql" %% "macro-visit" % "0.1.0"
 
 ## Introduction
 
-Writing visitor code can be quite tedious process, especially if some nodes need to be transformed (in immutable way) along the way. 
-This becomes even harder if performance is a concern and data structures are deeply recursive, so non-tail recursive approach is not an option.  
-This library provides very simple way to create type-safe visitor code for arbitrary sealed case class hierarchies. Generated visitor provides following features:
+Writing visitor code can be quite tedious, especially if some nodes need to be transformed (in immutable way) along the way. This becomes even harder if performance is a concern and data structures are deeply recursive, so non tail-recursive approach is not an option. **macro-visit** provides very simple way to create type-safe visitor code for arbitrary sealed case class hierarchies. Generated visitor provides following features:
 
 * **Non-recursive traversal**, which means all state is managed in the heap and you will not run into stack 
   overflow errors with deep recursive data structures. 
