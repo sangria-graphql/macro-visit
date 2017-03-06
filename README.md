@@ -1,8 +1,6 @@
-# Macro Visit
+# Macro Visit [![Build Status](https://travis-ci.org/sangria-graphql/macro-visit.svg?branch=master)](https://travis-ci.org/sangria-graphql/macro-visit) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.sangria-graphql/macro-visit_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.sangria-graphql/macro-visit_2.11) [![License](http://img.shields.io/:license-Apache%202-brightgreen.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt) [![Join the chat at https://gitter.im/sangria-graphql/sangria](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sangria-graphql/sangria?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 A macro-based generic visitor generator
-
-[![Build Status](https://travis-ci.org/sangria-graphql/macro-visit.svg?branch=master)](https://travis-ci.org/sangria-graphql/macro-visit) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.sangria-graphql/macro-visit_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.sangria-graphql/macro-visit_2.11) [![License](http://img.shields.io/:license-Apache%202-brightgreen.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt) [![Scaladocs](https://www.javadoc.io/badge/org.sangria-graphql/macro-visit_2.12.svg?label=docs)](https://www.javadoc.io/doc/org.sangria-graphql/macro-visit_2.12) [![Join the chat at https://gitter.im/sangria-graphql/sangria](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sangria-graphql/sangria?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 SBT Configuration:
 
