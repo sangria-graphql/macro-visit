@@ -29,6 +29,8 @@ Generated visitors can be very useful for traversing and transforming AST (Abstr
 Here is how basic usage looks like:
 
 ```scala
+import sangria.visitor._
+
 val res = visit[Ast](root,
   Visit[Field](f ⇒ if (f.name == "hex") VisitorCommand.Delete else VisitorCommand.Continue),
   Visit[IntValue](v ⇒ VisitorCommand.Transform(IntValue(v.value + 1))))
