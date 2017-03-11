@@ -1,6 +1,6 @@
 name := "macro-visit"
 organization := "org.sangria-graphql"
-version := "0.1.1"
+version := "0.1.2-SNAPSHOT"
 
 description := "Macro-based generic visitor generator"
 homepage := Some(url("http://sangria-graphql.org"))
