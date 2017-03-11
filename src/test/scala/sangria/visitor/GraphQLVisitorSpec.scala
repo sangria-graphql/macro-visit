@@ -58,7 +58,7 @@ class GraphQLVisitorSpec extends WordSpec with Matchers with StringMatchers {
         Visit[ObjectField](
           enter = _ ⇒ VisitorCommand.Continue,
           leave = leaveInputField),
-        TransformSpecialNamed[Document, Option[Position]]("position", (_, _) ⇒ VisitorCommand.Transform(None)))
+        VisitAnyFieldByName[Document, Option[Position]]("position", (_, _) ⇒ VisitorCommand.Transform(None)))
 
       res.renderPretty should equal (
         """query Foo {
