@@ -20,7 +20,7 @@ class VisitMacro(val c: blackbox.Context) {
   }
 
   def generateTraversal(tpe: Type, node: Tree, subclasses: Set[Symbol], tx: Seq[MacroTransformer]) = {
-    val specials = tx.collect {case s: MacroTransformSpecial ⇒ s}
+    val specials = tx.collect {case s: MacroVisitAnyField ⇒ s}
 
     val infos =
       subclasses.toVector.map { cls ⇒
@@ -267,7 +267,7 @@ class VisitMacro(val c: blackbox.Context) {
             }
           """
 
-        case special: MacroTransformSpecial ⇒
+        case special: MacroVisitAnyField ⇒
           val specialMembers =
             info.members.filter(m ⇒
               m.memberType == MemberType.Special &&
@@ -343,7 +343,7 @@ class VisitMacro(val c: blackbox.Context) {
               }
             """
 
-          case special: MacroTransformSpecial ⇒ q""
+          case special: MacroVisitAnyField ⇒ q""
         }
 
       q"""
@@ -446,7 +446,7 @@ class VisitMacro(val c: blackbox.Context) {
 
   private def name(s: Symbol) = s.name.decodedName.toString
 
-  private def findKnownMembers(baseType: Type, tpe: Type, specials: Seq[MacroTransformSpecial]): List[KnownMember] = {
+  private def findKnownMembers(baseType: Type, tpe: Type, specials: Seq[MacroVisitAnyField]): List[KnownMember] = {
     tpe.members.flatMap {
       case m: MethodSymbol if m.isCaseAccessor ⇒
         findMemberType(baseType, name(m) ,m.returnType, specials).map{case (et, mt) ⇒ new KnownMember(tpe, m, mt, et)}
@@ -457,7 +457,7 @@ class VisitMacro(val c: blackbox.Context) {
   private case class VisitInfo(tpe: Symbol, applyEditsName: String, onEnterName: String, onLeaveName: String, members: Seq[KnownMember])
   private case class KnownMember(tpe: Type, member: MethodSymbol, memberType: MemberType.Value, elemType: Type)
 
-  private def findMemberType(baseType: Type, name: String, fieldType: Type, specials: Seq[MacroTransformSpecial]): Option[(Type, MemberType.Value)] =
+  private def findMemberType(baseType: Type, name: String, fieldType: Type, specials: Seq[MacroVisitAnyField]): Option[(Type, MemberType.Value)] =
     if (isSupertype[List[_]](fieldType) && fieldType.typeArgs.nonEmpty && isSupertype1(baseType, fieldType.typeArgs.head))
       Some(fieldType.typeArgs.head → MemberType.List)
     else if (isSupertype[Vector[_]](fieldType) && fieldType.typeArgs.nonEmpty && isSupertype1(baseType, fieldType.typeArgs.head))
@@ -487,10 +487,10 @@ class VisitMacro(val c: blackbox.Context) {
       Right(MacroVisit(matchType.tpe, enter, leave))
 
     case q"$setting.apply[$matchType, $specialType]($fn)" if checkSetting[VisitAnyField.type](setting) ⇒
-      Right(MacroTransformSpecial(matchType.tpe, specialType.tpe, fn, None))
+      Right(MacroVisitAnyField(matchType.tpe, specialType.tpe, fn, None))
 
     case q"$setting.apply[$matchType, $specialType](${fieldName: String}, $fn)" if checkSetting[VisitAnyFieldByName.type](setting) ⇒
-      Right(MacroTransformSpecial(matchType.tpe, specialType.tpe, fn, Some(fieldName)))
+      Right(MacroVisitAnyField(matchType.tpe, specialType.tpe, fn, Some(fieldName)))
 
     case tree ⇒
       Left(tree.pos →
@@ -538,5 +538,5 @@ class VisitMacro(val c: blackbox.Context) {
   }
 
   case class MacroVisit(matchType: Type, enter: Tree, leave: Tree) extends MacroTransformer
-  case class MacroTransformSpecial(matchType: Type, specialType: Type, fn: Tree, fieldName: Option[String]) extends MacroTransformer
+  case class MacroVisitAnyField(matchType: Type, specialType: Type, fn: Tree, fieldName: Option[String]) extends MacroTransformer
 }

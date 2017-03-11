@@ -24,6 +24,21 @@ Writing visitor code can be quite tedious, especially if some nodes need to be t
   
 Generated visitors can be very useful for traversing and transforming AST (Abstract Syntax Tree).        
 
+Assuming that the base type is called `Ast`, following visitors are supported:
+
+* `Visit(enter, leave)`, where `enter` and `leave` are `Ast ⇒ VisitorCommand` functions - it recursively visits all instances of `Ast` type
+* `VisitAnyField(fn)` - it visits all fields with special type `S` (which is different from `Ast`) along the way 
+* `VisitAnyFieldByName(fieldName, fn)` - it visits all fields with provided name and special type `S` (which is different from `Ast`) along the way
+ 
+Following visitor commands are supported:
+ 
+* `Skip`
+* `Continue`
+* `Break`
+* `Transform(newValue, controlCommand)`
+* `Delete`
+* `DeleteAndBreak` 
+
 ## Example
 
 Here is how basic usage looks like:
