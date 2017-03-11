@@ -486,10 +486,10 @@ class VisitMacro(val c: blackbox.Context) {
     case q"$setting.apply[$matchType]($enter, $leave)" if checkSetting[Visit.type](setting) ⇒
       Right(MacroVisit(matchType.tpe, enter, leave))
 
-    case q"$setting.apply[$matchType, $specialType]($fn)" if checkSetting[TransformSpecial.type](setting) ⇒
+    case q"$setting.apply[$matchType, $specialType]($fn)" if checkSetting[VisitAnyField.type](setting) ⇒
       Right(MacroTransformSpecial(matchType.tpe, specialType.tpe, fn, None))
 
-    case q"$setting.apply[$matchType, $specialType](${fieldName: String}, $fn)" if checkSetting[TransformSpecialNamed.type](setting) ⇒
+    case q"$setting.apply[$matchType, $specialType](${fieldName: String}, $fn)" if checkSetting[VisitAnyFieldByName.type](setting) ⇒
       Right(MacroTransformSpecial(matchType.tpe, specialType.tpe, fn, Some(fieldName)))
 
     case tree ⇒
