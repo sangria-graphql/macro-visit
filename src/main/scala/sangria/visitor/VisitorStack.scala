@@ -1,6 +1,6 @@
 package sangria.visitor
 
-import scala.collection.mutable.{Map ⇒ MutableMap}
+import scala.collection.mutable.{Map => MutableMap}
 
 class VisitorStack[T](
   var node: T,

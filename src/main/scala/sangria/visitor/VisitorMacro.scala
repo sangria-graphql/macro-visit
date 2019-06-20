@@ -7,11 +7,11 @@ class VisitMacro(val c: blackbox.Context) {
 
   def visitImpl[T : WeakTypeTag](rootNode: Tree, transformations: Tree*) = {
     val validatedConfig = validateTransformations(transformations)
-    val errors = validatedConfig.collect {case Left(error) ⇒ error}
+    val errors = validatedConfig.collect {case Left(error) => error}
 
     if (errors.nonEmpty) reportErrors(errors)
     else {
-      val validConfig = validatedConfig.collect {case Right(cfg) ⇒ cfg}
+      val validConfig = validatedConfig.collect {case Right(cfg) => cfg}
       val tpe = weakTypeTag[T].tpe
       val subclasses = collectKnownSubtypes(tpe.typeSymbol)
 
@@ -20,10 +20,10 @@ class VisitMacro(val c: blackbox.Context) {
   }
 
   def generateTraversal(tpe: Type, node: Tree, subclasses: Set[Symbol], tx: Seq[MacroTransformer]) = {
-    val specials = tx.collect {case s: MacroVisitAnyField ⇒ s}
+    val specials = tx.collect {case s: MacroVisitAnyField => s}
 
     val infos =
-      subclasses.toVector.map { cls ⇒
+      subclasses.toVector.map { cls =>
         VisitInfo(
           cls,
           c.freshName("applyEdits_" + name(cls)),
@@ -37,9 +37,8 @@ class VisitMacro(val c: blackbox.Context) {
     val onLeave = generateOnLeave(tpe, infos, tx)
 
     val cases =
-      infos.map { info ⇒
+      infos.map { info =>
         val cls = info.tpe
-        val members = info.members
         val membersNoSpecial = info.members.filter(_.memberType != MemberType.Special)
 
         def memberSize(m: KnownMember) =
@@ -52,8 +51,8 @@ class VisitMacro(val c: blackbox.Context) {
           val next = membersNoSpecial.dropWhile(_.member.name != m.member.name).drop(1).headOption
 
           next match {
-            case Some(nm) ⇒ q"${name(nm.member)}"
-            case None ⇒ q"null"
+            case Some(nm) => q"${name(nm.member)}"
+            case None => q"null"
           }
         }
 
@@ -61,27 +60,27 @@ class VisitMacro(val c: blackbox.Context) {
           val next = membersNoSpecial.dropWhile(_.member.name != m.member.name).drop(1).headOption
 
           next match {
-            case Some(nm) ⇒ memberSize(nm)
-            case None ⇒ q"-1"
+            case Some(nm) => memberSize(nm)
+            case None => q"-1"
           }
         }
 
         def memberNode(m: KnownMember) =
           m.memberType match {
-            case MemberType.Seq | MemberType.List | MemberType.Vector ⇒
+            case MemberType.Seq | MemberType.List | MemberType.Vector =>
               q"currNode.${m.member.name}(memberIndex)"
-            case MemberType.Option ⇒
+            case MemberType.Option =>
               q"currNode.${m.member.name}.get"
-            case MemberType.Normal ⇒
+            case MemberType.Normal =>
               q"currNode.${m.member.name}"
-            case MemberType.Special ⇒
+            case MemberType.Special =>
               q"???" // this should not be used
           }
 
         val selectNextMemberCase =
-          membersNoSpecial.zipWithIndex.map { case (m, idx) ⇒
+          membersNoSpecial.zipWithIndex.map { case (m, idx) =>
             cq"""
-              ${name(m.member)} ⇒
+              ${name(m.member)} =>
                 if (memberIndex <= (memberSize - 1)) {
                   memberNode = ${memberNode(m)}
                 } else {
@@ -118,8 +117,8 @@ class VisitMacro(val c: blackbox.Context) {
                   stack.edits = _root_.scala.collection.mutable.Map()
 
                 stack.edits.get(currMember) match {
-                  case Some(me) ⇒ me
-                  case None ⇒
+                  case Some(me) => me
+                  case None =>
                     stack.edits(currMember) = _root_.scala.collection.mutable.Map[Int, $tpe]()
                 }
 
@@ -145,16 +144,16 @@ class VisitMacro(val c: blackbox.Context) {
                 }
 
                 enterResult match {
-                  case _root_.sangria.visitor.VisitorCommand.Continue ⇒
+                  case _root_.sangria.visitor.VisitorCommand.Continue =>
                     do {
                       memberIndex = memberIndex + 1
                       $selectNextMember
                     } while (memberNode == null && !isLeaving)
 
-                  case _root_.sangria.visitor.VisitorCommand.Skip ⇒
+                  case _root_.sangria.visitor.VisitorCommand.Skip =>
                     isLeaving = true
 
-                  case _root_.sangria.visitor.VisitorCommand.Break ⇒
+                  case _root_.sangria.visitor.VisitorCommand.Break =>
                     breakMode = true
                     isLeaving = true
                 }
@@ -220,7 +219,7 @@ class VisitMacro(val c: blackbox.Context) {
               stack = stack.prev
             """
 
-        cq"n: $cls ⇒ $logic"
+        cq"n: $cls => $logic"
       }
 
     q"""
@@ -245,57 +244,57 @@ class VisitMacro(val c: blackbox.Context) {
   }
 
   private def generateOnEnter(tpe: Type, infos: Seq[VisitInfo], tx: Seq[MacroTransformer]) =
-    infos.map { info ⇒
+    infos.map { info =>
       def enterLogic(t: MacroTransformer) = t match {
-        case visit: MacroVisit ⇒
+        case visit: MacroVisit =>
           q"""
             if (enterResult == _root_.sangria.visitor.VisitorCommand.Continue) {
               (${visit.enter}(stack.node.asInstanceOf[${t.matchType}]): _root_.sangria.visitor.VisitorCommand) match {
-                case cc: _root_.sangria.visitor.VisitorControlCommand ⇒
+                case cc: _root_.sangria.visitor.VisitorControlCommand =>
                   enterResult = cc
-                case tr: _root_.sangria.visitor.VisitorCommand.Transform[_] ⇒
+                case tr: _root_.sangria.visitor.VisitorCommand.Transform[_] =>
                   stack.updated = true
                   stack.node = tr.newValue.asInstanceOf[$tpe]
                   enterResult = tr.controlCommand
-                case _root_.sangria.visitor.VisitorCommand.Delete ⇒
+                case _root_.sangria.visitor.VisitorCommand.Delete =>
                   stack.deleted = true
                   enterResult = _root_.sangria.visitor.VisitorCommand.Skip
-                case _root_.sangria.visitor.VisitorCommand.DeleteAndBreak ⇒
+                case _root_.sangria.visitor.VisitorCommand.DeleteAndBreak =>
                   stack.deleted = true
                   enterResult = _root_.sangria.visitor.VisitorCommand.Break
               }
             }
           """
 
-        case special: MacroVisitAnyField ⇒
+        case special: MacroVisitAnyField =>
           val specialMembers =
-            info.members.filter(m ⇒
+            info.members.filter(m =>
               m.memberType == MemberType.Special &&
               isSupertypeNoErasure(special.specialType, m.elemType) &&
-              special.fieldName.fold(true)(fn ⇒ name(m.member) == fn))
+              special.fieldName.fold(true)(fn => name(m.member) == fn))
 
           val specialCode =
-            specialMembers.map { sm ⇒
+            specialMembers.map { sm =>
               q"""
                 if (enterResult == _root_.sangria.visitor.VisitorCommand.Continue) {
                   val actualNode = stack.node.asInstanceOf[${t.matchType}]
 
                   (${special.fn}(actualNode, actualNode.${sm.member.name}): _root_.sangria.visitor.VisitorCommand) match {
-                    case cc: _root_.sangria.visitor.VisitorControlCommand ⇒
+                    case cc: _root_.sangria.visitor.VisitorControlCommand =>
                       enterResult = cc
-                    case tr: _root_.sangria.visitor.VisitorCommand.Transform[_] ⇒
+                    case tr: _root_.sangria.visitor.VisitorCommand.Transform[_] =>
                       if (stack.specialEdits == null)
                         stack.specialEdits = _root_.scala.collection.mutable.Map()
 
                       stack.specialEdits(${name(sm.member)}) = tr.newValue
                       enterResult = tr.controlCommand
-                    case _root_.sangria.visitor.VisitorCommand.Delete ⇒
+                    case _root_.sangria.visitor.VisitorCommand.Delete =>
                       if (stack.specialEdits == null)
                         stack.specialEdits = _root_.scala.collection.mutable.Map()
 
                       stack.specialEdits(${name(sm.member)}) = null
                       enterResult = _root_.sangria.visitor.VisitorCommand.Skip
-                    case _root_.sangria.visitor.VisitorCommand.DeleteAndBreak ⇒
+                    case _root_.sangria.visitor.VisitorCommand.DeleteAndBreak =>
                       if (stack.specialEdits == null)
                         stack.specialEdits = _root_.scala.collection.mutable.Map()
 
@@ -321,29 +320,29 @@ class VisitMacro(val c: blackbox.Context) {
     }
 
   private def generateOnLeave(tpe: Type, infos: Seq[VisitInfo], tx: Seq[MacroTransformer]) =
-    infos.map { info ⇒
+    infos.map { info =>
       def leaveLogic(t: MacroTransformer) = t match {
-          case visit: MacroVisit ⇒
+          case visit: MacroVisit =>
             q"""
               if (leaveResult == _root_.sangria.visitor.VisitorCommand.Continue) {
                 (${visit.leave}(stack.node.asInstanceOf[${t.matchType}]): _root_.sangria.visitor.VisitorCommand) match {
-                  case cc: _root_.sangria.visitor.VisitorControlCommand ⇒
+                  case cc: _root_.sangria.visitor.VisitorControlCommand =>
                     leaveResult = cc
-                  case tr: _root_.sangria.visitor.VisitorCommand.Transform[_] ⇒
+                  case tr: _root_.sangria.visitor.VisitorCommand.Transform[_] =>
                     stack.updated = true
                     stack.node = tr.newValue.asInstanceOf[$tpe]
                     leaveResult = tr.controlCommand
-                  case _root_.sangria.visitor.VisitorCommand.Delete ⇒
+                  case _root_.sangria.visitor.VisitorCommand.Delete =>
                     stack.deleted = true
                     leaveResult = _root_.sangria.visitor.VisitorCommand.Skip
-                  case _root_.sangria.visitor.VisitorCommand.DeleteAndBreak ⇒
+                  case _root_.sangria.visitor.VisitorCommand.DeleteAndBreak =>
                     stack.deleted = true
                     leaveResult = _root_.sangria.visitor.VisitorCommand.Break
                 }
               }
             """
 
-          case special: MacroVisitAnyField ⇒ q""
+          case special: MacroVisitAnyField => q""
         }
 
       q"""
@@ -358,16 +357,16 @@ class VisitMacro(val c: blackbox.Context) {
     }
 
   private def generateApplyEdits(tpe: Type, infos: Seq[VisitInfo]) =
-    infos.map { info ⇒
+    infos.map { info =>
       def applyActualMemberEdits(m: KnownMember) = m.memberType match {
-        case MemberType.Normal ⇒
+        case MemberType.Normal =>
           q"""
             if (edits(0) == null)
               origNode.${m.member.name}
             else
               edits(0).asInstanceOf[${m.elemType}]
           """
-        case MemberType.Option ⇒
+        case MemberType.Option =>
           q"""
             if (edits(0) == null)
               _root_.scala.None
@@ -375,7 +374,7 @@ class VisitMacro(val c: blackbox.Context) {
               _root_.scala.Some(edits(0).asInstanceOf[${m.elemType}])
           """
 
-        case MemberType.List | MemberType.Vector | MemberType.Seq  ⇒
+        case MemberType.List | MemberType.Vector | MemberType.Seq  =>
           q"""
             val orig = origNode.${m.member.name}
             val builder = new _root_.scala.collection.immutable.VectorBuilder[${m.elemType}]
@@ -383,9 +382,9 @@ class VisitMacro(val c: blackbox.Context) {
 
             while (idx < orig.size) {
               edits.get(idx) match {
-                case Some(null) ⇒ // do nothing - element is deleted
-                case Some(elem) ⇒ builder += elem.asInstanceOf[${m.elemType}]
-                case None ⇒ builder += orig(idx)
+                case Some(null) => // do nothing - element is deleted
+                case Some(elem) => builder += elem.asInstanceOf[${m.elemType}]
+                case None => builder += orig(idx)
               }
 
               idx += 1
@@ -393,13 +392,13 @@ class VisitMacro(val c: blackbox.Context) {
 
             ${
                m.memberType match {
-                 case MemberType.List ⇒ q"builder.result().toList"
-                 case _ ⇒ q"builder.result()"
+                 case MemberType.List => q"builder.result().toList"
+                 case _ => q"builder.result()"
                }
              }
           """
 
-        case MemberType.Special  ⇒
+        case MemberType.Special  =>
           q"???" // should not be used
 
       }
@@ -409,10 +408,10 @@ class VisitMacro(val c: blackbox.Context) {
           q"""
             if (stack.edits != null)
               stack.edits.get(${name(m.member)}) match {
-                case Some(edits) if edits != null && edits.nonEmpty ⇒
+                case Some(edits) if edits != null && edits.nonEmpty =>
                   ${applyActualMemberEdits(m)}
 
-                case None ⇒
+                case None =>
                   origNode.${m.member.name}
               }
             else origNode.${m.member.name}
@@ -421,10 +420,10 @@ class VisitMacro(val c: blackbox.Context) {
           q"""
             if (stack.specialEdits != null)
               stack.specialEdits.get(${name(m.member)}) match {
-                case Some(edit) if edit != null ⇒
+                case Some(edit) if edit != null =>
                   edit.asInstanceOf[${m.elemType}]
 
-                case _ ⇒
+                case _ =>
                   origNode.${m.member.name}
               }
             else origNode.${m.member.name}
@@ -436,21 +435,21 @@ class VisitMacro(val c: blackbox.Context) {
 
           val origNode = stack.node.asInstanceOf[${info.tpe}]
 
-          origNode.copy(..${info.members.map(m ⇒ q"${m.member.name} = ${applyMemberEdits(m)}")})
+          origNode.copy(..${info.members.map(m => q"${m.member.name} = ${applyMemberEdits(m)}")})
         }
       """
     }
 
   def transformersForType(tpe: Type, tx: Seq[MacroTransformer]) =
-    tx.filter(t ⇒ isSupertype1(t.matchType, tpe))
+    tx.filter(t => isSupertype1(t.matchType, tpe))
 
   private def name(s: Symbol) = s.name.decodedName.toString
 
   private def findKnownMembers(baseType: Type, tpe: Type, specials: Seq[MacroVisitAnyField]): List[KnownMember] = {
     tpe.members.flatMap {
-      case m: MethodSymbol if m.isCaseAccessor ⇒
-        findMemberType(baseType, name(m) ,m.returnType, specials).map{case (et, mt) ⇒ new KnownMember(tpe, m, mt, et)}
-      case _ ⇒ None
+      case m: MethodSymbol if m.isCaseAccessor =>
+        findMemberType(baseType, name(m) ,m.returnType, specials).map{case (et, mt) => new KnownMember(tpe, m, mt, et)}
+      case _ => None
     }.toList.reverse
   }
 
@@ -459,17 +458,17 @@ class VisitMacro(val c: blackbox.Context) {
 
   private def findMemberType(baseType: Type, name: String, fieldType: Type, specials: Seq[MacroVisitAnyField]): Option[(Type, MemberType.Value)] =
     if (isSupertype[List[_]](fieldType) && fieldType.typeArgs.nonEmpty && isSupertype1(baseType, fieldType.typeArgs.head))
-      Some(fieldType.typeArgs.head → MemberType.List)
+      Some(fieldType.typeArgs.head -> MemberType.List)
     else if (isSupertype[Vector[_]](fieldType) && fieldType.typeArgs.nonEmpty && isSupertype1(baseType, fieldType.typeArgs.head))
-      Some(fieldType.typeArgs.head → MemberType.Vector)
+      Some(fieldType.typeArgs.head -> MemberType.Vector)
     else if (isSupertype[Seq[_]](fieldType) && fieldType.typeArgs.nonEmpty && isSupertype1(baseType, fieldType.typeArgs.head))
-      Some(fieldType.typeArgs.head → MemberType.Seq)
+      Some(fieldType.typeArgs.head -> MemberType.Seq)
     else if (isSupertype[Option[_]](fieldType) && fieldType.typeArgs.nonEmpty && isSupertype1(baseType, fieldType.typeArgs.head))
-      Some(fieldType.typeArgs.head → MemberType.Option)
+      Some(fieldType.typeArgs.head -> MemberType.Option)
     else if (isSupertype1(baseType, fieldType))
-      Some(fieldType → MemberType.Normal)
-    else if (specials.exists(s ⇒ isSupertypeNoErasure(s.specialType, fieldType) && s.fieldName.fold(true)(fn ⇒ name == fn)))
-      Some(fieldType → MemberType.Special)
+      Some(fieldType -> MemberType.Normal)
+    else if (specials.exists(s => isSupertypeNoErasure(s.specialType, fieldType) && s.fieldName.fold(true)(fn => name == fn)))
+      Some(fieldType -> MemberType.Special)
     else
       None
 
@@ -477,23 +476,23 @@ class VisitMacro(val c: blackbox.Context) {
     val Seq, List, Vector, Option, Normal, Special = Value
 
     def coll(memberType: MemberType.Value) = memberType match {
-      case Seq | List | Vector | Option ⇒ true
-      case _ ⇒ false
+      case Seq | List | Vector | Option => true
+      case _ => false
     }
   }
 
   private def validateTransformations(transformations: Seq[Tree]) = transformations.map {
-    case q"$setting.apply[$matchType]($enter, $leave)" if checkSetting[Visit.type](setting) ⇒
+    case q"$setting.apply[$matchType]($enter, $leave)" if checkSetting[Visit.type](setting) =>
       Right(MacroVisit(matchType.tpe, enter, leave))
 
-    case q"$setting.apply[$matchType, $specialType]($fn)" if checkSetting[VisitAnyField.type](setting) ⇒
+    case q"$setting.apply[$matchType, $specialType]($fn)" if checkSetting[VisitAnyField.type](setting) =>
       Right(MacroVisitAnyField(matchType.tpe, specialType.tpe, fn, None))
 
-    case q"$setting.apply[$matchType, $specialType](${fieldName: String}, $fn)" if checkSetting[VisitAnyFieldByName.type](setting) ⇒
+    case q"$setting.apply[$matchType, $specialType](${fieldName: String}, $fn)" if checkSetting[VisitAnyFieldByName.type](setting) =>
       Right(MacroVisitAnyField(matchType.tpe, specialType.tpe, fn, Some(fieldName)))
 
-    case tree ⇒
-      Left(tree.pos →
+    case tree =>
+      Left(tree.pos ->
         "Unsupported shape of transformation. Please define subclasses of `Transformation` directly in the argument list of the macro.")
   }
 
@@ -528,7 +527,7 @@ class VisitMacro(val c: blackbox.Context) {
 
     val (lastPos, lastError) = errors.last
 
-    errors.dropRight(1).foreach{case (pos, error) ⇒ c.error(pos, error)}
+    errors.dropRight(1).foreach{case (pos, error) => c.error(pos, error)}
 
     c.abort(lastPos, lastError)
   }

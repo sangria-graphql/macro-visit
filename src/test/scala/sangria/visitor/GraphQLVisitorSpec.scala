@@ -34,20 +34,20 @@ class GraphQLVisitorSpec extends WordSpec with Matchers with StringMatchers {
       var fields = Vector.empty[Field]
       var inputFields = Vector.empty[ObjectField]
 
-      val enterField = (field: Field) ⇒ {
+      val enterField = (field: Field) => {
         fields = fields :+ field
 
         field.name match {
-          case "firstName" ⇒
+          case "firstName" =>
             VisitorCommand.Transform(field.copy(comments = List(Comment("Test comment"))))
-          case "interests" ⇒
+          case "interests" =>
             VisitorCommand.Skip
-          case _ ⇒
+          case _ =>
             VisitorCommand.Continue
         }
       }
 
-      val leaveInputField = (field: ObjectField) ⇒ {
+      val leaveInputField = (field: ObjectField) => {
         inputFields = inputFields :+ field
 
         VisitorCommand.Continue
@@ -56,9 +56,9 @@ class GraphQLVisitorSpec extends WordSpec with Matchers with StringMatchers {
       val res = visit[AstNode](doc,
         Visit[Field](enterField),
         Visit[ObjectField](
-          enter = _ ⇒ VisitorCommand.Continue,
+          enter = _ => VisitorCommand.Continue,
           leave = leaveInputField),
-        VisitAnyFieldByName[Document, Option[Position]]("position", (_, _) ⇒ VisitorCommand.Transform(None)))
+        VisitAnyFieldByName[Document, Option[Position]]("position", (_, _) => VisitorCommand.Transform(None)))
 
       res.renderPretty should equal (
         """query Foo {
