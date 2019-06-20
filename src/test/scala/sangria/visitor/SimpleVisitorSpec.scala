@@ -38,8 +38,8 @@ class SimpleVisitorSpec extends WordSpec with Matchers with StringMatchers {
         ))
 
       val res = visit[Ast](graph,
-        Visit[Field](f ⇒ if (f.name == "hex") VisitorCommand.Delete else VisitorCommand.Continue),
-        Visit[IntValue](v ⇒ VisitorCommand.Transform(IntValue(v.value + 1))))
+        Visit[Field](f => if (f.name == "hex") VisitorCommand.Delete else VisitorCommand.Continue),
+        Visit[IntValue](v => VisitorCommand.Transform(IntValue(v.value + 1))))
 
       res should be(
         Vertex("start", List(
