@@ -26,6 +26,22 @@ libraryDependencies ++= Seq(
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oF")
 
+// Sangria 1.0.0 (required for AST in test) has never been published for 2.13
+libraryDependencies --= {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, 13)) =>
+      Seq("org.sangria-graphql" %% "sangria" % "1.0.0" % Test)
+    case _ => Seq.empty
+  }
+}
+
+excludeFilter in (Test, unmanagedSources) := {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, 13)) => HiddenFileFilter || "GraphQLVisitorSpec.scala"
+    case _ => NothingFilter
+  }
+}
+
 // Publishing
 
 publishMavenStyle := true
