@@ -51,7 +51,8 @@ excludeFilter in (Test, unmanagedSources) := {
 }
 
 // Publishing
-
+releaseCrossBuild := true
+releasePublishArtifactsAction := PgpKeys.publishSigned.value
 publishMavenStyle := true
 publishArtifact in Test := false
 pomIncludeRepository := (_ ⇒ false)
