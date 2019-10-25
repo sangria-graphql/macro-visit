@@ -1,6 +1,5 @@
 name := "macro-visit"
 organization := "org.sangria-graphql"
-version := "0.1.2-SNAPSHOT"
 mimaPreviousArtifacts := Set("org.sangria-graphql" %% "macro-visit" % "0.1.1")
 
 description := "Macro-based generic visitor generator"
