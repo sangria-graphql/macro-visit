@@ -1,6 +1,5 @@
 name := "macro-visit"
 organization := "org.sangria-graphql"
-version := "0.1.2-SNAPSHOT"
 mimaPreviousArtifacts := Set("org.sangria-graphql" %% "macro-visit" % "0.1.1")
 
 description := "Macro-based generic visitor generator"
@@ -51,7 +50,8 @@ excludeFilter in (Test, unmanagedSources) := {
 }
 
 // Publishing
-
+releaseCrossBuild := true
+releasePublishArtifactsAction := PgpKeys.publishSigned.value
 publishMavenStyle := true
 publishArtifact in Test := false
 pomIncludeRepository := (_ ⇒ false)
@@ -65,8 +65,8 @@ startYear := Some(2017)
 organizationHomepage := Some(url("https://github.com/sangria-graphql"))
 developers := Developer("OlegIlyenko", "Oleg Ilyenko", "", url("https://github.com/OlegIlyenko")) :: Nil
 scmInfo := Some(ScmInfo(
-  browseUrl = url("https://github.com/sangria-graphql/sangria.git"),
-  connection = "scm:git:git@github.com:sangria-graphql/sangria.git"
+  browseUrl = url("https://github.com/sangria-graphql-org/sangria.git"),
+  connection = "scm:git:git@github.com:sangria-graphql-org/sangria.git"
 ))
 
 // nice *magenta* prompt!
