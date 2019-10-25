@@ -1,6 +1,6 @@
 name := "macro-visit"
 organization := "org.sangria-graphql"
-mimaPreviousArtifacts := Set("org.sangria-graphql" %% "macro-visit" % "0.1.1")
+mimaPreviousArtifacts := Set("org.sangria-graphql" %% "macro-visit" % "0.1.2")
 
 description := "Macro-based generic visitor generator"
 homepage := Some(url("http://sangria-graphql.org"))
