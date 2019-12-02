@@ -1,11 +1,12 @@
 package sangria.visitor
 
-import org.scalatest.{Matchers, WordSpec}
 import sangria.visitor.util.StringMatchers
 
 import scala.collection.immutable.Vector
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-class SimpleVisitorSpec extends WordSpec with Matchers with StringMatchers {
+class SimpleVisitorSpec extends AnyWordSpec with Matchers with StringMatchers {
   sealed trait Ast
 
   case class Vertex(name: String, edges: List[Edge], fields: Vector[Field] = Vector.empty) extends Ast
