@@ -27,7 +27,7 @@ libraryDependencies ++= Seq(
   "org.scala-lang" % "scala-reflect" % scalaVersion.value,
 
   // testing
-  "org.scalatest" %% "scalatest" % "3.1.0" % Test,
+  "org.scalatest" %% "scalatest" % "3.1.1" % Test,
   "org.sangria-graphql" %% "sangria" % "1.0.0" % Test
 )
 
