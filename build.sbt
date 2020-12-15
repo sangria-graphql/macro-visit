@@ -27,8 +27,8 @@ libraryDependencies ++= Seq(
   "org.scala-lang" % "scala-reflect" % scalaVersion.value,
 
   // testing
-  "org.scalatest" %% "scalatest" % "3.1.0" % Test,
-  "org.sangria-graphql" %% "sangria" % "1.0.0" % Test
+  "org.scalatest" %% "scalatest" % "3.1.4" % Test,
+  "org.sangria-graphql" %% "sangria" % "1.4.2" % Test
 )
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oF")
@@ -37,7 +37,7 @@ testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oF")
 libraryDependencies --= {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 13)) =>
-      Seq("org.sangria-graphql" %% "sangria" % "1.0.0" % Test)
+      Seq("org.sangria-graphql" %% "sangria" % "1.4.2" % Test)
     case _ => Seq.empty
   }
 }
