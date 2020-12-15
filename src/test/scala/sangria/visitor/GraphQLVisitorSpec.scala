@@ -1,14 +1,15 @@
 package sangria.visitor
 
 import org.parboiled2.Position
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import sangria.ast._
 import sangria.macros._
 import sangria.visitor.util.StringMatchers
 
 import scala.collection.immutable.Vector
 
-class GraphQLVisitorSpec extends WordSpec with Matchers with StringMatchers {
+class GraphQLVisitorSpec extends AnyWordSpec with Matchers with StringMatchers {
   "Visitor when used with GraphQL AST" should {
     "traverse and transform AST" in {
       val doc =
@@ -39,7 +40,7 @@ class GraphQLVisitorSpec extends WordSpec with Matchers with StringMatchers {
 
         field.name match {
           case "firstName" =>
-            VisitorCommand.Transform(field.copy(comments = List(Comment("Test comment"))))
+            VisitorCommand.Transform(field.copy(comments = Vector(Comment("Test comment"))))
           case "interests" =>
             VisitorCommand.Skip
           case _ =>
