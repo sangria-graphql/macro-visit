@@ -6,7 +6,7 @@ description := "Macro-based generic visitor generator"
 homepage := Some(url("http://sangria-graphql.org"))
 licenses := Seq("Apache License, ASL Version 2.0" → url("http://www.apache.org/licenses/LICENSE-2.0"))
 
-scalaVersion := "2.13.1"
+scalaVersion := "2.13.4"
 crossScalaVersions := Seq("2.11.12", "2.12.10", scalaVersion.value)
 
 scalacOptions ++= Seq(
