@@ -5,13 +5,13 @@ import scala.reflect.macros.blackbox
 class VisitMacro(val c: blackbox.Context) {
   import c.universe._
 
-  def visitImpl[T : WeakTypeTag](rootNode: Tree, transformations: Tree*) = {
+  def visitImpl[T: WeakTypeTag](rootNode: Tree, transformations: Tree*) = {
     val validatedConfig = validateTransformations(transformations)
-    val errors = validatedConfig.collect {case Left(error) => error}
+    val errors = validatedConfig.collect { case Left(error) => error }
 
     if (errors.nonEmpty) reportErrors(errors)
     else {
-      val validConfig = validatedConfig.collect {case Right(cfg) => cfg}
+      val validConfig = validatedConfig.collect { case Right(cfg) => cfg }
       val tpe = weakTypeTag[T].tpe
       val subclasses = collectKnownSubtypes(tpe.typeSymbol)
 
@@ -19,8 +19,12 @@ class VisitMacro(val c: blackbox.Context) {
     }
   }
 
-  def generateTraversal(tpe: Type, node: Tree, subclasses: Set[Symbol], tx: Seq[MacroTransformer]) = {
-    val specials = tx.collect {case s: MacroVisitAnyField => s}
+  def generateTraversal(
+      tpe: Type,
+      node: Tree,
+      subclasses: Set[Symbol],
+      tx: Seq[MacroTransformer]) = {
+    val specials = tx.collect { case s: MacroVisitAnyField => s }
 
     val infos =
       subclasses.toVector.map { cls =>
@@ -29,7 +33,8 @@ class VisitMacro(val c: blackbox.Context) {
           c.freshName("applyEdits_" + name(cls)),
           c.freshName("onEnter_" + name(cls)),
           c.freshName("onLeave_" + name(cls)),
-          findKnownMembers(tpe, cls.typeSignature, specials))
+          findKnownMembers(tpe, cls.typeSignature, specials)
+        )
       }
 
     val applyEdits = generateApplyEdits(tpe, infos)
@@ -270,8 +275,8 @@ class VisitMacro(val c: blackbox.Context) {
           val specialMembers =
             info.members.filter(m =>
               m.memberType == MemberType.Special &&
-              isSupertypeNoErasure(special.specialType, m.elemType) &&
-              special.fieldName.fold(true)(fn => name(m.member) == fn))
+                isSupertypeNoErasure(special.specialType, m.elemType) &&
+                special.fieldName.fold(true)(fn => name(m.member) == fn))
 
           val specialCode =
             specialMembers.map { sm =>
@@ -322,8 +327,8 @@ class VisitMacro(val c: blackbox.Context) {
   private def generateOnLeave(tpe: Type, infos: Seq[VisitInfo], tx: Seq[MacroTransformer]) =
     infos.map { info =>
       def leaveLogic(t: MacroTransformer) = t match {
-          case visit: MacroVisit =>
-            q"""
+        case visit: MacroVisit =>
+          q"""
               if (leaveResult == _root_.sangria.visitor.VisitorCommand.Continue) {
                 (${visit.leave}(stack.node.asInstanceOf[${t.matchType}]): _root_.sangria.visitor.VisitorCommand) match {
                   case cc: _root_.sangria.visitor.VisitorControlCommand =>
@@ -342,8 +347,8 @@ class VisitMacro(val c: blackbox.Context) {
               }
             """
 
-          case special: MacroVisitAnyField => q""
-        }
+        case special: MacroVisitAnyField => q""
+      }
 
       q"""
         def ${TermName(info.onLeaveName)}(stack: VisitorStack[$tpe]): _root_.sangria.visitor.VisitorControlCommand = {
@@ -374,7 +379,7 @@ class VisitMacro(val c: blackbox.Context) {
               _root_.scala.Some(edits(0).asInstanceOf[${m.elemType}])
           """
 
-        case MemberType.List | MemberType.Vector | MemberType.Seq  =>
+        case MemberType.List | MemberType.Vector | MemberType.Seq =>
           q"""
             val orig = origNode.${m.member.name}
             val builder = new _root_.scala.collection.immutable.VectorBuilder[${m.elemType}]
@@ -390,15 +395,13 @@ class VisitMacro(val c: blackbox.Context) {
               idx += 1
             }
 
-            ${
-               m.memberType match {
-                 case MemberType.List => q"builder.result().toList"
-                 case _ => q"builder.result()"
-               }
-             }
+            ${m.memberType match {
+            case MemberType.List => q"builder.result().toList"
+            case _ => q"builder.result()"
+          }}
           """
 
-        case MemberType.Special  =>
+        case MemberType.Special =>
           q"???" // should not be used
 
       }
@@ -445,29 +448,58 @@ class VisitMacro(val c: blackbox.Context) {
 
   private def name(s: Symbol) = s.name.decodedName.toString
 
-  private def findKnownMembers(baseType: Type, tpe: Type, specials: Seq[MacroVisitAnyField]): List[KnownMember] = {
-    tpe.members.flatMap {
-      case m: MethodSymbol if m.isCaseAccessor =>
-        findMemberType(baseType, name(m) ,m.returnType, specials).map{case (et, mt) => new KnownMember(tpe, m, mt, et)}
-      case _ => None
-    }.toList.reverse
-  }
+  private def findKnownMembers(
+      baseType: Type,
+      tpe: Type,
+      specials: Seq[MacroVisitAnyField]): List[KnownMember] =
+    tpe.members
+      .flatMap {
+        case m: MethodSymbol if m.isCaseAccessor =>
+          findMemberType(baseType, name(m), m.returnType, specials).map { case (et, mt) =>
+            new KnownMember(tpe, m, mt, et)
+          }
+        case _ => None
+      }
+      .toList
+      .reverse
 
-  private case class VisitInfo(tpe: Symbol, applyEditsName: String, onEnterName: String, onLeaveName: String, members: Seq[KnownMember])
-  private case class KnownMember(tpe: Type, member: MethodSymbol, memberType: MemberType.Value, elemType: Type)
+  private case class VisitInfo(
+      tpe: Symbol,
+      applyEditsName: String,
+      onEnterName: String,
+      onLeaveName: String,
+      members: Seq[KnownMember])
+  private case class KnownMember(
+      tpe: Type,
+      member: MethodSymbol,
+      memberType: MemberType.Value,
+      elemType: Type)
 
-  private def findMemberType(baseType: Type, name: String, fieldType: Type, specials: Seq[MacroVisitAnyField]): Option[(Type, MemberType.Value)] =
-    if (isSupertype[List[_]](fieldType) && fieldType.typeArgs.nonEmpty && isSupertype1(baseType, fieldType.typeArgs.head))
+  private def findMemberType(
+      baseType: Type,
+      name: String,
+      fieldType: Type,
+      specials: Seq[MacroVisitAnyField]): Option[(Type, MemberType.Value)] =
+    if (isSupertype[List[_]](fieldType) && fieldType.typeArgs.nonEmpty && isSupertype1(
+        baseType,
+        fieldType.typeArgs.head))
       Some(fieldType.typeArgs.head -> MemberType.List)
-    else if (isSupertype[Vector[_]](fieldType) && fieldType.typeArgs.nonEmpty && isSupertype1(baseType, fieldType.typeArgs.head))
+    else if (isSupertype[Vector[_]](fieldType) && fieldType.typeArgs.nonEmpty && isSupertype1(
+        baseType,
+        fieldType.typeArgs.head))
       Some(fieldType.typeArgs.head -> MemberType.Vector)
-    else if (isSupertype[Seq[_]](fieldType) && fieldType.typeArgs.nonEmpty && isSupertype1(baseType, fieldType.typeArgs.head))
+    else if (isSupertype[Seq[_]](fieldType) && fieldType.typeArgs.nonEmpty && isSupertype1(
+        baseType,
+        fieldType.typeArgs.head))
       Some(fieldType.typeArgs.head -> MemberType.Seq)
-    else if (isSupertype[Option[_]](fieldType) && fieldType.typeArgs.nonEmpty && isSupertype1(baseType, fieldType.typeArgs.head))
+    else if (isSupertype[Option[_]](fieldType) && fieldType.typeArgs.nonEmpty && isSupertype1(
+        baseType,
+        fieldType.typeArgs.head))
       Some(fieldType.typeArgs.head -> MemberType.Option)
     else if (isSupertype1(baseType, fieldType))
       Some(fieldType -> MemberType.Normal)
-    else if (specials.exists(s => isSupertypeNoErasure(s.specialType, fieldType) && s.fieldName.fold(true)(fn => name == fn)))
+    else if (specials.exists(s =>
+        isSupertypeNoErasure(s.specialType, fieldType) && s.fieldName.fold(true)(fn => name == fn)))
       Some(fieldType -> MemberType.Special)
     else
       None
@@ -485,20 +517,23 @@ class VisitMacro(val c: blackbox.Context) {
     case q"$setting.apply[$matchType]($enter, $leave)" if checkSetting[Visit.type](setting) =>
       Right(MacroVisit(matchType.tpe, enter, leave))
 
-    case q"$setting.apply[$matchType, $specialType]($fn)" if checkSetting[VisitAnyField.type](setting) =>
+    case q"$setting.apply[$matchType, $specialType]($fn)"
+        if checkSetting[VisitAnyField.type](setting) =>
       Right(MacroVisitAnyField(matchType.tpe, specialType.tpe, fn, None))
 
-    case q"$setting.apply[$matchType, $specialType](${fieldName: String}, $fn)" if checkSetting[VisitAnyFieldByName.type](setting) =>
+    case q"$setting.apply[$matchType, $specialType](${fieldName: String}, $fn)"
+        if checkSetting[VisitAnyFieldByName.type](setting) =>
       Right(MacroVisitAnyField(matchType.tpe, specialType.tpe, fn, Some(fieldName)))
 
     case tree =>
-      Left(tree.pos ->
-        "Unsupported shape of transformation. Please define subclasses of `Transformation` directly in the argument list of the macro.")
+      Left(
+        tree.pos ->
+          "Unsupported shape of transformation. Please define subclasses of `Transformation` directly in the argument list of the macro.")
   }
 
-  def checkSetting[T : WeakTypeTag](setting: Tree) = weakTypeTag[T].tpe =:= c.typecheck(setting).tpe
+  def checkSetting[T: WeakTypeTag](setting: Tree) = weakTypeTag[T].tpe =:= c.typecheck(setting).tpe
 
-  private def isSupertype[T : TypeTag](subtype: Type) =
+  private def isSupertype[T: TypeTag](subtype: Type) =
     subtype.erasure <:< typeTag[T].tpe.erasure
 
   private def isSupertype1(t: Type, subtype: Type) =
@@ -527,7 +562,7 @@ class VisitMacro(val c: blackbox.Context) {
 
     val (lastPos, lastError) = errors.last
 
-    errors.dropRight(1).foreach{case (pos, error) => c.error(pos, error)}
+    errors.dropRight(1).foreach { case (pos, error) => c.error(pos, error) }
 
     c.abort(lastPos, lastError)
   }
@@ -537,5 +572,10 @@ class VisitMacro(val c: blackbox.Context) {
   }
 
   case class MacroVisit(matchType: Type, enter: Tree, leave: Tree) extends MacroTransformer
-  case class MacroVisitAnyField(matchType: Type, specialType: Type, fn: Tree, fieldName: Option[String]) extends MacroTransformer
+  case class MacroVisitAnyField(
+      matchType: Type,
+      specialType: Type,
+      fn: Tree,
+      fieldName: Option[String])
+      extends MacroTransformer
 }

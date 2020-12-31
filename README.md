@@ -29,7 +29,7 @@ Generated visitors can be very useful for traversing and transforming AST (Abstr
 
 Assuming that the base type is called `Ast`, following visitors are supported:
 
-* `Visit(enter, leave)`, where `enter` and `leave` are `Ast ⇒ VisitorCommand` functions - it recursively visits all instances of `Ast` type
+* `Visit(enter, leave)`, where `enter` and `leave` are `Ast => VisitorCommand` functions - it recursively visits all instances of `Ast` type
 * `VisitAnyField(fn)` - it visits all fields with special type `S` (which is different from `Ast`) along the way 
 * `VisitAnyFieldByName(fieldName, fn)` - it visits all fields with provided name and special type `S` (which is different from `Ast`) along the way
  
@@ -50,8 +50,8 @@ Here is how basic usage looks like:
 import sangria.visitor._
 
 val res = visit[Ast](root,
-  Visit[Field](f ⇒ if (f.name == "hex") VisitorCommand.Delete else VisitorCommand.Continue),
-  Visit[IntValue](v ⇒ VisitorCommand.Transform(IntValue(v.value + 1))))
+  Visit[Field](f => if (f.name == "hex") VisitorCommand.Delete else VisitorCommand.Continue),
+  Visit[IntValue](v => VisitorCommand.Transform(IntValue(v.value + 1))))
 ```
 
 Macro will look for all subtypes of `Ast` and then will generate traversal code for it with provided visitors. `Visit` takes 2 functions 
