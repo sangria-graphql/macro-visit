@@ -8,7 +8,8 @@ object VisitorCommand {
   case object Continue extends VisitorControlCommand
   case object Break extends VisitorControlCommand
 
-  case class Transform[T](newValue: T, controlCommand: VisitorControlCommand = Continue) extends VisitorCommand
+  case class Transform[T](newValue: T, controlCommand: VisitorControlCommand = Continue)
+      extends VisitorCommand
   case object Delete extends VisitorCommand
   case object DeleteAndBreak extends VisitorCommand
 }

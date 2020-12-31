@@ -54,15 +54,16 @@ class GraphQLVisitorSpec extends AnyWordSpec with Matchers with StringMatchers {
         VisitorCommand.Continue
       }
 
-      val res = visit[AstNode](doc,
+      val res = visit[AstNode](
+        doc,
         Visit[Field](enterField),
-        Visit[ObjectField](
-          enter = _ => VisitorCommand.Continue,
-          leave = leaveInputField),
-        VisitAnyFieldByName[Document, Option[Position]]("position", (_, _) => VisitorCommand.Transform(None)))
+        Visit[ObjectField](enter = _ => VisitorCommand.Continue, leave = leaveInputField),
+        VisitAnyFieldByName[Document, Option[Position]](
+          "position",
+          (_, _) => VisitorCommand.Transform(None))
+      )
 
-      res.renderPretty should equal (
-        """query Foo {
+      res.renderPretty should equal("""query Foo {
           |  # first field
           |  person(id: String, filters: [{firstName1: "Bob"}, {lastName1: "Doe"}]) {
           |    ...Names
@@ -77,11 +78,10 @@ class GraphQLVisitorSpec extends AnyWordSpec with Matchers with StringMatchers {
           |  # Test comment
           |  firstName
           |  lastName
-          |}""".stripMargin) (after being strippedOfCarriageReturns)
+          |}""".stripMargin)(after.being(strippedOfCarriageReturns))
 
-
-      fields.map(_.name) should be (Vector("person", "interests", "firstName", "lastName"))
-      inputFields.map(_.name) should be (Vector("firstName1", "lastName1"))
+      fields.map(_.name) should be(Vector("person", "interests", "firstName", "lastName"))
+      inputFields.map(_.name) should be(Vector("firstName1", "lastName1"))
     }
   }
 }
