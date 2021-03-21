@@ -10,7 +10,7 @@ A macro-based generic visitor generator
 SBT Configuration:
 
 ```scala
-libraryDependencies += "org.sangria-graphql" %% "macro-visit" % "0.1.2"
+libraryDependencies += "org.sangria-graphql" %% "macro-visit" % "<latest version>"
 ```
 
 ## Introduction

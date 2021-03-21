@@ -28,13 +28,13 @@ libraryDependencies ++= Seq(
   "org.sangria-graphql" %% "sangria" % "2.1.0" % Test
 )
 
-testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oF")
+Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oF")
 
 // Publishing
 releaseCrossBuild := true
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
 publishMavenStyle := true
-publishArtifact in Test := false
+Test / publishArtifact := false
 pomIncludeRepository := (_ ⇒ false)
 publishTo := Some(
   if (version.value.trim.endsWith("SNAPSHOT"))
@@ -56,7 +56,6 @@ scmInfo := Some(
   ))
 
 // nice *magenta* prompt!
-
-shellPrompt in ThisBuild := { state ⇒
+ThisBuild / shellPrompt := { state ⇒
   scala.Console.MAGENTA + Project.extract(state).currentRef.project + "> " + scala.Console.RESET
 }
