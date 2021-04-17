@@ -25,7 +25,7 @@ libraryDependencies ++= Seq(
   "org.scala-lang" % "scala-reflect" % scalaVersion.value,
   // testing
   "org.scalatest" %% "scalatest" % "3.2.7" % Test,
-  "org.sangria-graphql" %% "sangria" % "2.1.0" % Test
+  "org.sangria-graphql" %% "sangria" % "2.1.2" % Test
 )
 
 Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oF")
