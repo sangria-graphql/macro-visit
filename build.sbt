@@ -56,8 +56,8 @@ developers := Developer(
   url("https://github.com/OlegIlyenko")) :: Nil
 scmInfo := Some(
   ScmInfo(
-    browseUrl = url("https://github.com/sangria-graphql/sangria.git"),
-    connection = "scm:git:git@github.com:sangria-graphql/sangria.git"
+    browseUrl = url("https://github.com/sangria-graphql/macro-visit"),
+    connection = "scm:git:git@github.com:sangria-graphql/macro-visit.git"
   ))
 
 // nice *magenta* prompt!
