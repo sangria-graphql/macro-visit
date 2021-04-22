@@ -30,17 +30,22 @@ libraryDependencies ++= Seq(
 
 Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oF")
 
-// Publishing
-releaseCrossBuild := true
-releasePublishArtifactsAction := PgpKeys.publishSigned.value
-publishMavenStyle := true
-Test / publishArtifact := false
-pomIncludeRepository := (_ ⇒ false)
-publishTo := Some(
-  if (version.value.trim.endsWith("SNAPSHOT"))
-    "snapshots".at("https://oss.sonatype.org/content/repositories/snapshots")
-  else
-    "releases".at("https://oss.sonatype.org/service/local/staging/deploy/maven2"))
+// Release
+ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
+ThisBuild / githubWorkflowPublishTargetBranches :=
+  Seq(RefPredicate.StartsWith(Ref.Tag("v")))
+  ThisBuild / githubWorkflowPublish := Seq(
+  WorkflowStep.Sbt(
+    List("ci-release"),
+    env = Map(
+      "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}",
+      "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}",
+      "SONATYPE_PASSWORD" -> "${{ secrets.SONATYPE_PASSWORD }}",
+      "SONATYPE_USERNAME" -> "${{ secrets.SONATYPE_USERNAME }}"
+    )
+  )
+)
+
 
 startYear := Some(2017)
 organizationHomepage := Some(url("https://github.com/sangria-graphql"))
