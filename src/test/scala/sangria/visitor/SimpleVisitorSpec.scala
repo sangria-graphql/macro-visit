@@ -73,6 +73,13 @@ class SimpleVisitorSpec extends AnyWordSpec with Matchers with StringMatchers {
         Visit[IntValue](v => VisitorCommand.Transform(IntValue(v.value + 1)))
       )
 
+      val res2 = visit2[Ast](
+        graph,
+        3,
+        5,
+        6
+      )
+
       res should be(
         Vertex(
           "start",
