@@ -13,3 +13,8 @@ class VisitorStack[T](
     var specialEdits: MutableMap[String, Any],
     var prev: VisitorStack[T],
     var next: VisitorStack[T])
+
+object VisitorStack {
+  def initial[T](node: T): VisitorStack[T] =
+    new VisitorStack[T](node, false, false, null, -1, -1, null, null, null, null)
+}
