@@ -233,7 +233,7 @@ class VisitMacro(val c: blackbox.Context) {
       ..$onLeave
 
       val rootNode = $node
-      var stack = new _root_.sangria.visitor.VisitorStack[$tpe](rootNode, false, false, null, -1, -1, null, null, null, null)
+      var stack = _root_.sangria.visitor.VisitorStack.initial[$tpe](rootNode)
       var breakMode = false
       var nestedUpdated: $tpe = null
       var nestedDeleted = false
