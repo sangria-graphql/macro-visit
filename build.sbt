@@ -34,7 +34,7 @@ Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oF")
 ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches :=
   Seq(RefPredicate.StartsWith(Ref.Tag("v")))
-  ThisBuild / githubWorkflowPublish := Seq(
+ThisBuild / githubWorkflowPublish := Seq(
   WorkflowStep.Sbt(
     List("ci-release"),
     env = Map(
@@ -45,7 +45,6 @@ ThisBuild / githubWorkflowPublishTargetBranches :=
     )
   )
 )
-
 
 startYear := Some(2017)
 organizationHomepage := Some(url("https://github.com/sangria-graphql"))
