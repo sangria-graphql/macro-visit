@@ -314,8 +314,7 @@ class VisitMacro(val c: blackbox.Context) {
       }
 
       q"""
-        def ${TermName(
-        info.onEnterName)}(stack: VisitorStack[$tpe]): _root_.sangria.visitor.VisitorControlCommand = {
+        def ${TermName(info.onEnterName)}(stack: VisitorStack[$tpe]): _root_.sangria.visitor.VisitorControlCommand = {
           var enterResult: _root_.sangria.visitor.VisitorControlCommand = _root_.sangria.visitor.VisitorCommand.Continue
 
           ..${transformersForType(info.tpe.asType.toType, tx).map(enterLogic)}
@@ -352,8 +351,7 @@ class VisitMacro(val c: blackbox.Context) {
       }
 
       q"""
-        def ${TermName(
-        info.onLeaveName)}(stack: VisitorStack[$tpe]): _root_.sangria.visitor.VisitorControlCommand = {
+        def ${TermName(info.onLeaveName)}(stack: VisitorStack[$tpe]): _root_.sangria.visitor.VisitorControlCommand = {
           var leaveResult: _root_.sangria.visitor.VisitorControlCommand = _root_.sangria.visitor.VisitorCommand.Continue
 
           ..${transformersForType(info.tpe.asType.toType, tx).map(leaveLogic)}
@@ -398,9 +396,9 @@ class VisitMacro(val c: blackbox.Context) {
             }
 
             ${m.memberType match {
-            case MemberType.List => q"builder.result().toList"
-            case _ => q"builder.result()"
-          }}
+              case MemberType.List => q"builder.result().toList"
+              case _ => q"builder.result()"
+            }}
           """
 
         case MemberType.Special =>
