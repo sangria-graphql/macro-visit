@@ -24,7 +24,7 @@ libraryDependencies ++= Seq(
   // macros
   "org.scala-lang" % "scala-reflect" % scalaVersion.value,
   // testing
-  "org.scalatest" %% "scalatest" % "3.2.11" % Test,
+  "org.scalatest" %% "scalatest" % "3.2.12" % Test,
   "org.sangria-graphql" %% "sangria" % "2.1.6" % Test
 )
 
