@@ -101,7 +101,7 @@ class VisitMacro (using val globalQuotes: Quotes) {
             type s
             VisitAnyFieldByName[`u`, `s`]($fieldName: String, $fn: (`u`, `s`) => VisitorCommand)
           } =>
-        val strFieldName = fieldName.valueOrAbort // TODO Reconsider
+        val strFieldName = fieldName.valueOrAbort // TODO Reconsider !!!
         Right(MacroVisitAnyField[u, s](TypeRepr.of[u], Type.of[u], TypeRepr.of[s], Type.of[s], fn, Some(strFieldName)))
       case _ => Left("does not know")
     }
@@ -136,7 +136,7 @@ class VisitMacro (using val globalQuotes: Quotes) {
 
     val infos =
       subclasses.map { cls =>
-        val clsTypeRepr = TypeIdent(cls).tpe // reconsider doing that here
+        val clsTypeRepr = TypeIdent(cls).tpe
         val fieldMembers = findKnownMembers(cls, specials)
         val (knownMembers: Seq[KnownMember], defaultFields: Seq[DefaultField]) = fieldMembers.partition{
           case _: KnownMember => true
@@ -322,7 +322,6 @@ class VisitMacro (using val globalQuotes: Quotes) {
 
                   ${ unsafeAssign(nestedDeleted, '{$stack.deleted}) }
                   
-                  // stack = $stack.prev
                   $stack.prev
                 } else {
                   var next = $stack.next
@@ -550,7 +549,7 @@ class VisitMacro (using val globalQuotes: Quotes) {
               '{
                 val orig = ${ 
                   m.memberType match 
-                    case MemberType.List => Select.unique(origNode.asTerm, m.member.name).asExprOf[List[t]] // origNode.${m.member.name}
+                    case MemberType.List => Select.unique(origNode.asTerm, m.member.name).asExprOf[List[t]]
                     case MemberType.Vector => Select.unique(origNode.asTerm, m.member.name).asExprOf[Vector[t]]
                     case MemberType.Seq => Select.unique(origNode.asTerm, m.member.name).asExprOf[Seq[t]]
                 }
@@ -574,7 +573,6 @@ class VisitMacro (using val globalQuotes: Quotes) {
               }
 
             case MemberType.Special => ???
-              // q"???" // should not be used
 
     }
 
@@ -605,14 +603,14 @@ class VisitMacro (using val globalQuotes: Quotes) {
                     edit.asInstanceOf[t]
 
                   case _ =>
-                    ${ Select.unique(origNode.asTerm, m.member.name).asExprOf[t] } // origNode.${m.member.name}}
+                    ${ Select.unique(origNode.asTerm, m.member.name).asExprOf[t] }
                 }
               else ${ Select.unique(origNode.asTerm, m.member.name).asExprOf[t] }
             }
 
-    def generateModifiedOrigNode(using q: Quotes)(origNode: Expr[M], stack: Expr[VisitorStack[T]]): Expr[M] = { // replace with root
+    def generateModifiedOrigNode(using q: Quotes)(origNode: Expr[M], stack: Expr[VisitorStack[T]]): Expr[M] = {
       import q.reflect._
-      val copyList = members.map(m => NamedArg(m.member.name, applyMemberEdits(m, stack, origNode).asTerm)).toList//.tail
+      val copyList = members.map(m => NamedArg(m.member.name, applyMemberEdits(m, stack, origNode).asTerm)).toList
       val defaultList = defaultFields.map(f => NamedArg(f.member.name, Select(origNode.asTerm, origNode.asTerm.tpe.typeSymbol.methodMember("copy$default$" + (f.idx + 1).toString).head)))
 
       if (!copyList.isEmpty)
@@ -664,10 +662,10 @@ class VisitMacro (using val globalQuotes: Quotes) {
   }
   @experimental
   private def findKnownMembers[T](using baseTpe: Type[T])(
-    symbol: Symbol, // TODO consider rename
+    symbol: Symbol,
     specials: Seq[MacroVisitAnyField[?, ?]]
   ): Seq[MemberField] = {
-    val baseTypeTree = TypeTree.of[T] // consider getting symbol from typeRepr
+    val baseTypeTree = TypeTree.of[T]
     val baseTypeRepr = baseTypeTree.tpe
     val baseSymbol: Symbol = baseTypeTree.symbol
     symbol.caseFields.zipWithIndex.map { (m, idx) =>
