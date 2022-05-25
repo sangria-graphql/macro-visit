@@ -16,7 +16,7 @@ homepage := Some(url("http://sangria-graphql.org"))
 licenses := Seq(
   "Apache License, ASL Version 2.0" → url("http://www.apache.org/licenses/LICENSE-2.0"))
 
-ThisBuild / crossScalaVersions := Seq("2.12.15", "2.13.8", "3.0.0")
+ThisBuild / crossScalaVersions := Seq("2.12.15", "2.13.8", "3.1.3")
 ThisBuild / scalaVersion := crossScalaVersions.value.last
 ThisBuild / githubWorkflowPublishTargetBranches := List()
 ThisBuild / githubWorkflowBuildPreamble ++= List(
@@ -28,7 +28,7 @@ scalacOptions ++= Seq("-deprecation", "-feature", "-Xlint", "-Xlint:-missing-int
 
 scalacOptions ++= {
   if (isScala3.value)
-    Seq("-Xtarget:8")
+    Seq("-Xtarget:8", "-Xcheck-macros")
   else
     Seq("-target:jvm-1.8")
 }
