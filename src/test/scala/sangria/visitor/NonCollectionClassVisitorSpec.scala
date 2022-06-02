@@ -8,7 +8,6 @@ import org.scalatest.wordspec.AnyWordSpec
 class NonCollectionVisitorSpec extends AnyWordSpec with Matchers with StringMatchers {
   import NonCollectionVisitorSpec._
 
-  // TODO onLeave
   "Simple Visitor without collections" should {
     val f = Field(
       "start",
@@ -20,6 +19,23 @@ class NonCollectionVisitorSpec extends AnyWordSpec with Matchers with StringMatc
       val res = visit[Ast](
         f,
         Visit[StringValue](f => VisitorCommand.Transform(f.copy(value = "changed")))
+      )
+      res should be(Field("start", StringValue("changed"), IntValue(1)))
+    }
+
+    "handle multiple transformations" in {
+      val res = visit[Ast](
+        f,
+        Visit[StringValue](f => VisitorCommand.Transform(f.copy(value = "changed"))),
+        Visit[IntValue](f => VisitorCommand.Transform(f.copy(value = 2)))
+      )
+      res should be(Field("start", StringValue("changed"), IntValue(2)))
+    }
+
+    "transform on leave" in {
+      val res = visit[Ast](
+        f,
+        Visit[StringValue](f => VisitorCommand.Continue, f => VisitorCommand.Transform(f.copy(value = "changed")))
       )
       res should be(Field("start", StringValue("changed"), IntValue(1)))
     }
@@ -62,7 +78,6 @@ class NonCollectionVisitorSpec extends AnyWordSpec with Matchers with StringMatc
         )
       )
     }
-
     
   }
 }

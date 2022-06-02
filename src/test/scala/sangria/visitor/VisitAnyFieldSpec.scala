@@ -41,6 +41,21 @@ class VisitAnyFieldSpec extends AnyWordSpec with Matchers with StringMatchers {
       )
     }
   }
+
+  "VisitAnyFieldByName command" should {
+    "visit special fields based on parent type and member names" in {
+      val field = NameField(
+        "foo",
+        NameValue(NonAstField(0), NonAstField(0)),
+        NonAstField(0)
+      )
+      val res = visit[NameAst](
+        field,
+        VisitAnyFieldByName[NameValue, NonAstField]("special", (_, f) => VisitorCommand.Transform(NonAstField(f.value + 1)))
+      )
+      res should be(NameField("foo", NameValue(NonAstField(0), NonAstField(1)), NonAstField(0)))
+    }
+  }
 }
 
 object VisitAnyFieldSpec {
@@ -52,4 +67,8 @@ object VisitAnyFieldSpec {
   sealed trait Value extends Ast
   case class IntValue(value: Int) extends Value
   case class FieldValue(fieldVal: Field, nonAst: NonAstField, maybeNonAst: Option[NonAstField]) extends Value
+
+  sealed trait NameAst
+  case class NameField(name: String, value: NameValue, special: NonAstField) extends NameAst
+  case class NameValue(field: NonAstField, special: NonAstField) extends NameAst
 }

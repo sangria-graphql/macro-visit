@@ -24,13 +24,13 @@ ThisBuild / githubWorkflowBuildPreamble ++= List(
   WorkflowStep.Sbt(List("mimaReportBinaryIssues"), name = Some("Check binary compatibility"))
 )
 
-scalacOptions ++= Seq("-deprecation", "-feature", "-Xlint", "-Xlint:-missing-interpolator")
+scalacOptions ++= Seq("-deprecation", "-feature")
 
 scalacOptions ++= {
   if (isScala3.value)
     Seq("-Xtarget:8", "-Xcheck-macros")
   else
-    Seq("-target:jvm-1.8")
+    Seq("-target:jvm-1.8", "-Xlint", "-Xlint:-missing-interpolator")
 }
 javacOptions ++= Seq("-source", "8", "-target", "8")
 
