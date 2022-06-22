@@ -14,7 +14,7 @@ class NonCollectionVisitorSpec extends AnyWordSpec with Matchers with StringMatc
       StringValue("example"),
       IntValue(1)
     )
-    
+
     "transform values" in {
       val res = visit[Ast](
         f,
@@ -35,7 +35,9 @@ class NonCollectionVisitorSpec extends AnyWordSpec with Matchers with StringMatc
     "transform on leave" in {
       val res = visit[Ast](
         f,
-        Visit[StringValue](f => VisitorCommand.Continue, f => VisitorCommand.Transform(f.copy(value = "changed")))
+        Visit[StringValue](
+          f => VisitorCommand.Continue,
+          f => VisitorCommand.Transform(f.copy(value = "changed")))
       )
       res should be(Field("start", StringValue("changed"), IntValue(1)))
     }
@@ -74,11 +76,11 @@ class NonCollectionVisitorSpec extends AnyWordSpec with Matchers with StringMatc
         Field(
           "foo",
           FieldValue(Field("skip", IntValue(128), StringValue("example"))),
-          FieldValue(Field("no skip", IntValue(129), StringValue("changed"))),
+          FieldValue(Field("no skip", IntValue(129), StringValue("changed")))
         )
       )
     }
-    
+
   }
 }
 
