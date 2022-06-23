@@ -14,7 +14,7 @@ object VisitMacro {
   @experimental
   def visitCode[T](rootNode: Expr[T], transformations: Expr[Seq[Transformer[_ <: T]]])(using
       tt: Type[T])(using Quotes): Expr[T] =
-    new VisitMacro.visitCode[T](rootNode, transformations)
+    new VisitMacro().visitCode[T](rootNode, transformations)
 }
 
 class VisitMacro(using val globalQuotes: Quotes) {

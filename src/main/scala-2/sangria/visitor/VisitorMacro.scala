@@ -545,8 +545,7 @@ class VisitMacro(val c: blackbox.Context) {
   private def collectKnownSubtypes(s: Symbol): Set[Symbol] = {
     s.typeSignature // triggers some side-effects (without which `isCaseClass` does not work)
 
-    if (s.isModule || s.isModuleClass)
-      Set(s)
+    if (s.isModule || s.isModuleClass) Set(s)
     else if (s.isClass) {
       val cs = s.asClass
 
