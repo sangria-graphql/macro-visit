@@ -233,7 +233,7 @@ class VisitMacro(val c: blackbox.Context) {
       ..$onLeave
 
       val rootNode = $node
-      var stack = new _root_.sangria.visitor.VisitorStack[$tpe](rootNode, false, false, null, -1, -1, null, null, null, null)
+      var stack = _root_.sangria.visitor.VisitorStack.initial[$tpe](rootNode)
       var breakMode = false
       var nestedUpdated: $tpe = null
       var nestedDeleted = false
@@ -545,8 +545,7 @@ class VisitMacro(val c: blackbox.Context) {
   private def collectKnownSubtypes(s: Symbol): Set[Symbol] = {
     s.typeSignature // triggers some side-effects (without which `isCaseClass` does not work)
 
-    if (s.isModule || s.isModuleClass)
-      Set(s)
+    if (s.isModule || s.isModuleClass) Set(s)
     else if (s.isClass) {
       val cs = s.asClass
 

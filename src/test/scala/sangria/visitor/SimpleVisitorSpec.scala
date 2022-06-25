@@ -95,7 +95,8 @@ class SimpleVisitorSpec extends AnyWordSpec with Matchers with StringMatchers {
                 Vector.empty))
           ),
           Vector.empty
-        ))
+        )
+      )
     }
   }
 }
