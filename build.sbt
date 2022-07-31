@@ -46,7 +46,7 @@ libraryDependencies ++= {
 
 libraryDependencies ++= Seq(
   // testing
-  "org.scalatest" %% "scalatest" % "3.2.12" % Test,
+  "org.scalatest" %% "scalatest" % "3.2.13" % Test,
   ("org.sangria-graphql" %% "sangria" % "2.1.6").cross(CrossVersion.for3Use2_13) % Test
 )
 
