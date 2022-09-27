@@ -5,6 +5,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import sangria.ast._
 import sangria.macros._
+import sangria.renderer.QueryRenderer
 import sangria.visitor.util.StringMatchers
 
 import scala.collection.immutable.Vector
@@ -63,7 +64,7 @@ class GraphQLVisitorSpec extends AnyWordSpec with Matchers with StringMatchers {
           (_, _) => VisitorCommand.Transform(None))
       )
 
-      res.renderPretty should equal("""query Foo {
+      QueryRenderer.renderPretty(res) should equal("""query Foo {
           |  # first field
           |  person(id: String, filters: [{firstName1: "Bob"}, {lastName1: "Doe"}]) {
           |    ...Names
