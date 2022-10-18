@@ -16,7 +16,7 @@ homepage := Some(url("http://sangria-graphql.org"))
 licenses := Seq(
   "Apache License, ASL Version 2.0" → url("http://www.apache.org/licenses/LICENSE-2.0"))
 
-ThisBuild / crossScalaVersions := Seq("2.12.17", "2.13.8", "3.2.0")
+ThisBuild / crossScalaVersions := Seq("2.12.17", "2.13.10", "3.2.0")
 ThisBuild / scalaVersion := crossScalaVersions.value.last
 ThisBuild / githubWorkflowPublishTargetBranches := List()
 ThisBuild / githubWorkflowBuildPreamble ++= List(
@@ -47,7 +47,7 @@ libraryDependencies ++= {
 libraryDependencies ++= Seq(
   // testing
   "org.scalatest" %% "scalatest" % "3.2.14" % Test,
-  ("org.sangria-graphql" %% "sangria" % "3.2.0").cross(CrossVersion.for3Use2_13) % Test
+  "org.sangria-graphql" %% "sangria" % "3.4.0" % Test
 )
 
 Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oF")
