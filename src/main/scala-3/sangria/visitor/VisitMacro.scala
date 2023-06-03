@@ -142,19 +142,39 @@ class VisitMacro(using val globalQuotes: Quotes) {
             val onEnterName = genNameWithPrefix("onEnter")
             val onLeaveName = genNameWithPrefix("onLeave")
 
+            /** We wrap access with a typed anonymous function, giving us an easy access to a method
+              * via an Expr from a typed scala 3 quotation.
+              */
+            def genAnonfun[A: Type, B: Type](targetDefDef: DefDef): Expr[A => B] = {
+              val anonfunSymbol = Symbol.newMethod(
+                Symbol.spliceOwner,
+                "$anonfun",
+                MethodType(List("stack"))(_ => List(TypeRepr.of[A]), _ => TypeRepr.of[B])
+              )
+              val anonfunDef = DefDef(
+                anonfunSymbol,
+                (params: List[List[Tree]]) =>
+                  Some(
+                    Apply(
+                      Ref(targetDefDef.symbol),
+                      List(params.head.head.asExprOf[VisitorStack[T]].asTerm))
+                  )
+              )
+
+              Block(List(anonfunDef), Closure(Ref(anonfunSymbol), None))
+                .asExprOf[A => B]
+            }
+
             val onApplyEditsDef =
               generateOnApplyEdits[T, t](applyEditsName, clsTypeRepr, knownMembers, defaultFields)
-            val applyEditsExpr =
-              Closure(Ref(onApplyEditsDef.symbol), None).asExprOf[VisitorStack[T] => Option[T]]
+            val applyEditsExpr = genAnonfun[VisitorStack[T], Option[T]](onApplyEditsDef)
 
             val onEnterDef =
               generateOnEnter[T](onEnterName, clsTypeRepr, transformationValues, knownMembers)
-            val onEnterExpr = Closure(Ref(onEnterDef.symbol), None)
-              .asExprOf[VisitorStack[T] => VisitorControlCommand]
+            val onEnterExpr = genAnonfun[VisitorStack[T], VisitorControlCommand](onEnterDef)
 
             val onLeaveDef = generateOnLeave[T](onLeaveName, clsTypeRepr, transformationValues)
-            val onLeaveExpr = Closure(Ref(onLeaveDef.symbol), None)
-              .asExprOf[VisitorStack[T] => VisitorControlCommand]
+            val onLeaveExpr = genAnonfun[VisitorStack[T], VisitorControlCommand](onLeaveDef)
 
             VisitInfo[T, t](
               summon[Type[t]],
