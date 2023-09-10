@@ -7,11 +7,7 @@ import scala.annotation.meta.field
 
 import scala.collection.mutable.{Map => MutableMap}
 
-// Experimental feature for reading type parameters was used
-import scala.annotation.experimental
-
 object VisitMacro {
-  @experimental
   def visitCode[T](rootNode: Expr[T], transformations: Expr[Seq[Transformer[_ <: T]]])(using
       tt: Type[T])(using Quotes): Expr[T] =
     new VisitMacro().visitCode[T](rootNode, transformations)
@@ -42,7 +38,6 @@ class VisitMacro(using val globalQuotes: Quotes) {
       }.toSet
   }
 
-  @experimental
   def visitCode[T](rootNode: Expr[T], transformations: Expr[Seq[Transformer[_ <: T]]])(using
       tt: Type[T]): Expr[T] = {
     import quotes.reflect._
@@ -113,7 +108,6 @@ class VisitMacro(using val globalQuotes: Quotes) {
       case _ => Left("does not know")
     }
 
-  @experimental
   def generateTraversal[T](using tpe: Type[T])(
       node: Expr[T],
       subclasses: Set[Symbol],
@@ -816,7 +810,6 @@ class VisitMacro(using val globalQuotes: Quotes) {
   def transformersForType(tpe: TypeRepr, tx: Seq[MacroTransformer]) =
     tx.filter(t => tpe <:< t.matchType)
 
-  @experimental
   private def findMemberType(
       baseType: TypeRepr,
       name: String,
@@ -840,7 +833,6 @@ class VisitMacro(using val globalQuotes: Quotes) {
       case '[t] => None
     }
 
-  @experimental
   private def findKnownMembers[T](using baseTpe: Type[T])(
       symbol: Symbol,
       specials: Seq[MacroVisitAnyField[?, ?]]
