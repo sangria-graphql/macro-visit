@@ -126,9 +126,9 @@ class VisitMacro(using val globalQuotes: Quotes) {
         val clsTypeRepr = TypeIdent(cls).tpe
         val fieldMembers = findKnownMembers(cls, specials)
         val (knownMembers: Seq[KnownMember], defaultFields: Seq[DefaultField]) =
-          fieldMembers.partition {
-            case _: KnownMember => true
-            case _: MemberField => false
+          fieldMembers.partitionMap {
+            case m: KnownMember => Left(m)
+            case m: DefaultField => Right(m)
           }
 
         clsTypeRepr.asType match {
