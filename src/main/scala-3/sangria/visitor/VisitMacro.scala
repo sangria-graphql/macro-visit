@@ -512,14 +512,11 @@ class VisitMacro(using val globalQuotes: Quotes) {
                   (cc, stack)
                 case tr: VisitorCommand.Transform[_] =>
                   stack.updated = true
-                  stack.node = Option(tr.newValue.asInstanceOf[T])
-                  (tr.controlCommand, stack)
+                  stack.node = Option(tr.newValue.asInstanceOf[T])(tr.controlCommand, stack)
                 case VisitorCommand.Delete =>
-                  stack.deleted = true
-                  (VisitorCommand.Skip, stack)
+                  stack.deleted = true (VisitorCommand.Skip, stack)
                 case VisitorCommand.DeleteAndBreak =>
-                  stack.deleted = true
-                  (VisitorCommand.Break, stack)
+                  stack.deleted = true (VisitorCommand.Break, stack)
               }
             } else {
               (enterResult, stack)
@@ -554,20 +551,20 @@ class VisitMacro(using val globalQuotes: Quotes) {
                       if (stack.specialEdits == null)
                         stack.specialEdits = scala.collection.mutable.Map()
 
-                      stack.specialEdits(${ Expr(sm.member.name) }) = tr.newValue
-                      (tr.controlCommand, stack)
+                      stack.specialEdits(${ Expr(sm.member.name) }) =
+                        tr.newValue(tr.controlCommand, stack)
                     case VisitorCommand.Delete =>
                       if (stack.specialEdits == null)
                         stack.specialEdits = scala.collection.mutable.Map()
 
-                      stack.specialEdits(${ Expr(sm.member.name) }) = null
-                      (VisitorCommand.Skip, stack)
+                      stack.specialEdits(${ Expr(sm.member.name) }) =
+                        null (VisitorCommand.Skip, stack)
                     case VisitorCommand.DeleteAndBreak =>
                       if (stack.specialEdits == null)
                         stack.specialEdits = scala.collection.mutable.Map()
 
-                      stack.specialEdits(${ Expr(sm.member.name) }) = null
-                      (VisitorCommand.Break, stack)
+                      stack.specialEdits(${ Expr(sm.member.name) }) =
+                        null (VisitorCommand.Break, stack)
                   }
                 } else {
                   (enterResult, stack)
@@ -622,14 +619,11 @@ class VisitMacro(using val globalQuotes: Quotes) {
                   (cc, stack)
                 case tr: VisitorCommand.Transform[_] =>
                   stack.updated = true
-                  stack.node = Option(tr.newValue.asInstanceOf[T])
-                  (tr.controlCommand, stack)
+                  stack.node = Option(tr.newValue.asInstanceOf[T])(tr.controlCommand, stack)
                 case VisitorCommand.Delete =>
-                  stack.deleted = true
-                  (VisitorCommand.Skip, stack)
+                  stack.deleted = true (VisitorCommand.Skip, stack)
                 case VisitorCommand.DeleteAndBreak =>
-                  stack.deleted = true
-                  (VisitorCommand.Break, stack)
+                  stack.deleted = true (VisitorCommand.Break, stack)
               }
             } else (leaveResult, stack)
           }
