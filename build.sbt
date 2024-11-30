@@ -47,7 +47,7 @@ libraryDependencies ++= {
 libraryDependencies ++= Seq(
   // testing
   "org.scalatest" %% "scalatest" % "3.2.19" % Test,
-  "org.sangria-graphql" %% "sangria" % "4.2.0" % Test
+  "org.sangria-graphql" %% "sangria" % "4.2.3" % Test
 )
 
 Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oF")
