@@ -499,8 +499,8 @@ class VisitMacro(using val globalQuotes: Quotes) {
       typeRepr: TypeRepr,
       tx: Seq[MacroTransformer],
       members: Seq[KnownMember]): DefDef = {
-    def enterLogic(t: MacroTransformer): Expr[(
-        (VisitorControlCommand, VisitorStack[T])) => (VisitorControlCommand, VisitorStack[T])] =
+    def enterLogic(t: MacroTransformer): Expr[
+      ((VisitorControlCommand, VisitorStack[T])) => (VisitorControlCommand, VisitorStack[T])] =
       t match {
         case visit: MacroVisit[mt] =>
           given Type[mt] = visit.trueType
@@ -609,8 +609,8 @@ class VisitMacro(using val globalQuotes: Quotes) {
 
   private def generateOnLeave[T](using Type[T])(using
       quotes: Quotes)(methodName: String, typeRepr: TypeRepr, tx: Seq[MacroTransformer]) = {
-    def leaveLogic(t: MacroTransformer): Expr[(
-        (VisitorControlCommand, VisitorStack[T])) => (VisitorControlCommand, VisitorStack[T])] =
+    def leaveLogic(t: MacroTransformer): Expr[
+      ((VisitorControlCommand, VisitorStack[T])) => (VisitorControlCommand, VisitorStack[T])] =
       t match {
         case visit: MacroVisit[mt] =>
           given Type[mt] = visit.trueType
