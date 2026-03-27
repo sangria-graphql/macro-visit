@@ -46,7 +46,7 @@ libraryDependencies ++= {
 
 libraryDependencies ++= Seq(
   // testing
-  "org.scalatest" %% "scalatest" % "3.2.19" % Test,
+  "org.scalatest" %% "scalatest" % "3.2.20" % Test,
   "org.sangria-graphql" %% "sangria" % "4.2.3" % Test
 )
 
