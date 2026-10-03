@@ -326,7 +326,7 @@ class VisitMacro(using val globalQuotes: Quotes) {
                     }
 
                     ${ unsafeAssign(nestedDeleted, '{ false }) }
-                    ${ unsafeAssign(nestedUpdated, '{ None }) }
+                    ${ unsafeAssign(nestedUpdated, 'None) }
                   }
                   if (! $breakMode) {
                     var enterResult: VisitorControlCommand = VisitorCommand.Continue
@@ -419,8 +419,8 @@ class VisitMacro(using val globalQuotes: Quotes) {
                   if (enterResult == VisitorCommand.Break)
                     ${ unsafeAssign(breakMode, '{ true }) }
 
-                  if (${ stack }.specialEdits != null && ${ stack }.specialEdits.nonEmpty)
-                    ${ stack }.node = ${ info.applyEditsExpr }($stack).asInstanceOf[Option[T]]
+                  if ($stack.specialEdits != null && $stack.specialEdits.nonEmpty)
+                    $stack.node = ${ info.applyEditsExpr }($stack).asInstanceOf[Option[T]]
 
                   val leaveResult = ${ info.onLeaveExpr }($stack)
 
@@ -428,12 +428,10 @@ class VisitMacro(using val globalQuotes: Quotes) {
                     ${ unsafeAssign(breakMode, '{ true }) }
 
                   ${
-                    unsafeAssign(
-                      nestedUpdated,
-                      '{ if (${ stack }.updated) ${ stack }.node else None })
+                    unsafeAssign(nestedUpdated, '{ if ($stack.updated) $stack.node else None })
                   }
 
-                  ${ unsafeAssign(nestedDeleted, '{ ${ stack }.deleted }) }
+                  ${ unsafeAssign(nestedDeleted, '{ $stack.deleted }) }
 
                   $stack.prev
                 }
@@ -499,8 +497,8 @@ class VisitMacro(using val globalQuotes: Quotes) {
       typeRepr: TypeRepr,
       tx: Seq[MacroTransformer],
       members: Seq[KnownMember]): DefDef = {
-    def enterLogic(t: MacroTransformer): Expr[(
-        (VisitorControlCommand, VisitorStack[T])) => (VisitorControlCommand, VisitorStack[T])] =
+    def enterLogic(t: MacroTransformer): Expr[
+      ((VisitorControlCommand, VisitorStack[T])) => (VisitorControlCommand, VisitorStack[T])] =
       t match {
         case visit: MacroVisit[mt] =>
           given Type[mt] = visit.trueType
@@ -609,8 +607,8 @@ class VisitMacro(using val globalQuotes: Quotes) {
 
   private def generateOnLeave[T](using Type[T])(using
       quotes: Quotes)(methodName: String, typeRepr: TypeRepr, tx: Seq[MacroTransformer]) = {
-    def leaveLogic(t: MacroTransformer): Expr[(
-        (VisitorControlCommand, VisitorStack[T])) => (VisitorControlCommand, VisitorStack[T])] =
+    def leaveLogic(t: MacroTransformer): Expr[
+      ((VisitorControlCommand, VisitorStack[T])) => (VisitorControlCommand, VisitorStack[T])] =
       t match {
         case visit: MacroVisit[mt] =>
           given Type[mt] = visit.trueType
@@ -731,8 +729,8 @@ class VisitMacro(using val globalQuotes: Quotes) {
         m.fullType match
           case '[t] =>
             '{
-              if (${ stack }.edits != null)
-                ${ stack }.edits.get(${ Expr(m.member.name) }) match {
+              if ($stack.edits != null)
+                $stack.edits.get(${ Expr(m.member.name) }) match {
                   case Some(edits) if edits != null && edits.nonEmpty =>
                     ${ applyActualMemberEdits(m, 'edits, origNode) }
 
@@ -827,8 +825,8 @@ class VisitMacro(using val globalQuotes: Quotes) {
       case '[t] if fieldType <:< baseType =>
         Some(fieldType -> MemberType.Normal)
       case '[t]
-          if specials.exists(s =>
-            fieldType <:< s.specialType && s.fieldName.fold(true)(fn => name == fn)) =>
+          if specials
+            .exists(s => fieldType <:< s.specialType && s.fieldName.fold(true)(fn => name == fn)) =>
         Some(fieldType -> MemberType.Special)
       case '[t] => None
     }
